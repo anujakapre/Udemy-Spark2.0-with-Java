@@ -47,7 +47,6 @@ public class AirportsNotInUsaProblem {
     private static PairFunction<String, String, String> pairFunction(){
 		
     	return (PairFunction<String, String, String>)  line -> new Tuple2<>(line.split(Utils.COMMA_DELIMITER)[1],line.split(Utils.COMMA_DELIMITER)[3]); 
-//    	return null;
     	
     }
 }

@@ -63,6 +63,8 @@ public class AverageHousePriceProblem {
 		for (Entry<Integer, Double> e: housePriceAvg.collectAsMap().entrySet()) {
 			System.out.println(e.getKey()+"\t\t"+e.getValue());
 		}
+    
+		context.close();
     }
 
 
