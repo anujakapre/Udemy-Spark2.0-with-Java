@@ -23,8 +23,10 @@ public class SortedWordCountSolution {
         JavaRDD<String> wordRdd = lines.flatMap(line -> Arrays.asList(line.split(" ")).iterator());
 
         JavaPairRDD<String, Integer> wordPairRdd = wordRdd.mapToPair(word -> new Tuple2<>(word, 1));
+        System.out.println(wordPairRdd.count());
         JavaPairRDD<String, Integer> wordToCountPairs = wordPairRdd.reduceByKey((x, y) -> x + y);
-
+        System.out.println(wordToCountPairs.count());
+        
         JavaPairRDD<Integer, String> countToWordParis = wordToCountPairs.mapToPair(wordToCount -> new Tuple2<>(wordToCount._2(),
                                                                                                                wordToCount._1()));
         JavaPairRDD<Integer, String> sortedCountToWordParis = countToWordParis.sortByKey(false);
