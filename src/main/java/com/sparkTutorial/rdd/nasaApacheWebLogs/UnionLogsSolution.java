@@ -18,6 +18,7 @@ public class UnionLogsSolution {
         JavaRDD<String> aggregatedLogLines = julyFirstLogs.union(augustFirstLogs);
 
         JavaRDD<String> cleanLogLines = aggregatedLogLines.filter(line -> isNotHeader(line));
+        System.out.println(cleanLogLines.first());
 
         JavaRDD<String> sample = cleanLogLines.sample(true, 0.1);
 

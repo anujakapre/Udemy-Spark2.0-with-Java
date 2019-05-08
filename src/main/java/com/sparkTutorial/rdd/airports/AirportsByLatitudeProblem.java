@@ -1,5 +1,14 @@
 package com.sparkTutorial.rdd.airports;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
+
+import com.sparkTutorial.rdd.commons.Utils;
+
 public class AirportsByLatitudeProblem {
 
     public static void main(String[] args) throws Exception {
@@ -16,5 +25,21 @@ public class AirportsByLatitudeProblem {
            "Tofino", 49.082222
            ...
          */
+    
+  	  Logger.getLogger("org").setLevel(Level.ERROR);
+      SparkConf conf = new SparkConf().setAppName("USA-AIPRORTS").setMaster("local[3]");
+      JavaSparkContext sc = new JavaSparkContext(conf);
+
+      JavaRDD<String> airports = sc.textFile("in/airports.text");
+      System.out.println(airports.first());
+      JavaRDD<String> details= airports.filter(line -> Double.parseDouble(line.split(Utils.COMMA_DELIMITER)[6])>40);
+      
+      JavaRDD<String> airportsByLatitude = details.map(line-> {
+    	  String split[] = line.split(Utils.COMMA_DELIMITER);
+    	  return StringUtils.join(new String[] {split[1],split[6]},',');
+      });
+      
+      System.out.println(airportsByLatitude.first());
+      airportsByLatitude.saveAsTextFile("out/airportsByLatitude_solution");
     }
 }

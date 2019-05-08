@@ -1,5 +1,17 @@
 package com.sparkTutorial.pairRdd.aggregation.reducebykey.housePrice;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.PairFunction;
+
+import scala.Tuple2;
 
 public class AverageHousePriceProblem {
 
@@ -34,6 +46,24 @@ public class AverageHousePriceProblem {
 
            3, 1 and 2 mean the number of bedrooms. 325000 means the average price of houses with 3 bedrooms is 325000.
          */
+    
+    	Logger.getLogger("org").setLevel(Level.ERROR);
+    	SparkConf conf= new SparkConf().setAppName("AvgHousingPrice").setMaster("local");
+    	JavaSparkContext context = new JavaSparkContext(conf);
+    	
+    	JavaRDD<String> listings = context.textFile("in/RealEstate.csv").filter(line -> !(line.contains("Bedrooms,Bathrooms")));
+    	JavaPairRDD<Integer, AvgCount> bedroomPrices = listings.mapToPair((PairFunction<String,Integer,AvgCount>) line-> new Tuple2<Integer,AvgCount>(Integer.valueOf(line.split(",")[3]),new AvgCount(1, Double.valueOf(line.split(",")[2]))));
+    	
+    	JavaPairRDD<Integer, AvgCount> housePriceTotal = bedroomPrices.reduceByKey(
+                (x, y) -> new AvgCount(x.getCount() + y.getCount(), x.getTotal() + y.getTotal()));
+
+    	JavaPairRDD<Integer, Double> housePriceAvg = housePriceTotal.mapValues(line -> (line.getTotal()/line.getCount()));
+		System.out.println(housePriceAvg.first());
+		
+		for (Entry<Integer, Double> e: housePriceAvg.collectAsMap().entrySet()) {
+			System.out.println(e.getKey()+"\t\t"+e.getValue());
+		}
     }
+
 
 }
